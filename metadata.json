@@ -1,0 +1,9 @@
+{
+  "name": "ProPiel - AI Skin Analysis",
+  "description": "ProPiel uses your phone's camera to scan your face and provide a personalized skin analysis using AI. It detects skin characteristics and offers daily skincare routines, recommended products, and wellness tips. Includes a Spanish-speaking virtual assistant for skincare advice.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "prompt": ""
+}
