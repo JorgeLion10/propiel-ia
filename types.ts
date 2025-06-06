@@ -51,8 +51,7 @@ export enum AppState {
   Error,
 }
 
-export type AppView = 'home' | 'scan' | 'assistant' | 'options' | 'calendar';
-
+export type AppView = 'home' | 'scan' | 'assistant' | 'options' | 'calendar' | 'history';
 
 export interface GroundingChunkWeb {
   uri: string;
@@ -87,4 +86,10 @@ export interface FacialTreatmentService {
   price: number;
   imageUrl: string;
   detailsUrl: string;
+}
+
+export interface User {
+  id: string;
+  email: string;
+  created_at: string;
 }

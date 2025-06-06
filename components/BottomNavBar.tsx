@@ -1,8 +1,5 @@
-
-
-
 import React from 'react';
-import { HomeIcon, CameraIcon, SettingsIcon, CalendarIcon, AssistantButtonPngIcon } from './icons'; // Updated import
+import { HomeIcon, CameraIcon, SettingsIcon, CalendarIcon, AssistantButtonPngIcon } from './icons';
 import { useTranslation } from '../contexts/LanguageContext';
 import { AppView } from '../types';
 
@@ -18,10 +15,10 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeView, onNavChange, on
 
   const navItems = [
     { id: 'home' as AppView, labelKey: 'navHome', icon: HomeIcon, action: () => onNavChange('home') },
+    { id: 'history' as AppView, labelKey: 'navHistory', icon: CalendarIcon, action: () => onNavChange('history') },
     { id: 'scan', labelKey: 'navScan', icon: CameraIcon, action: onScanPress },
-    { id: 'assistant', labelKey: 'navAssistant', icon: AssistantButtonPngIcon, action: onAssistantPress, isCentral: true }, // Changed icon
+    { id: 'assistant', labelKey: 'navAssistant', icon: AssistantButtonPngIcon, action: onAssistantPress, isCentral: true },
     { id: 'options' as AppView, labelKey: 'navOptions', icon: SettingsIcon, action: () => onNavChange('options') },
-    { id: 'calendar' as AppView, labelKey: 'navCalendar', icon: CalendarIcon, action: () => onNavChange('calendar') },
   ];
 
   return (
@@ -35,14 +32,12 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeView, onNavChange, on
             <button
               key={item.id}
               onClick={item.action}
-              className="flex flex-col items-center justify-center -mt-8" // Removed text color classes as label is gone
+              className="flex flex-col items-center justify-center -mt-8"
               aria-label={t(item.labelKey)}
             >
               <div className="bg-primary rounded-full p-3.5 shadow-lg hover:bg-opacity-90 transition-all duration-200">
-                {/* Ensure the icon is white and has the correct size */}
                 <item.icon className="w-8 h-8 filter-white-icon" /> 
               </div>
-              {/* Text label removed for the central button */}
             </button>
           );
         }

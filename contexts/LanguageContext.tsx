@@ -1,17 +1,9 @@
-
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { Language } from '../types';
-// Import translations directly for simplicity in this environment
-// In a Vite/Webpack setup, you might use dynamic imports or a library like i18next
 
-// Define a recursive structure for your translation files
 interface Translations {
   [key: string]: string | Translations;
 }
-
-// Manually define translations here or ensure they are loaded/imported correctly
-// For the purpose of this example, we'll define some basic keys.
-// In a real app, es.json and en.json would be separate files.
 
 const esTranslations: Translations = {
   // Header
@@ -23,12 +15,41 @@ const esTranslations: Translations = {
   languageSelector: {
     toggleLabel: "Cambiar idioma"
   },
+  // Authentication
+  auth: {
+    signIn: "Iniciar Sesión",
+    signUp: "Registrarse",
+    signOut: "Cerrar Sesión",
+    email: "Correo Electrónico",
+    password: "Contraseña",
+    emailPlaceholder: "tu@email.com",
+    passwordPlaceholder: "Tu contraseña",
+    signInWithGoogle: "Continuar con Google",
+    loading: "Cargando...",
+    or: "o",
+    signInSubtitle: "Inicia sesión para acceder a tu historial de análisis",
+    signUpSubtitle: "Crea una cuenta para guardar tu historial de análisis",
+    alreadyHaveAccount: "¿Ya tienes cuenta? Inicia sesión",
+    dontHaveAccount: "¿No tienes cuenta? Regístrate"
+  },
+  // History
+  history: {
+    title: "Historial de Análisis",
+    noAnalyses: "No hay análisis guardados",
+    noAnalysesDescription: "Realiza tu primer análisis de piel para ver tu historial aquí",
+    analysis: "Análisis",
+    characteristics: "características",
+    viewDetails: "Ver detalles",
+    backToHistory: "Volver al historial",
+    deleteAnalysis: "Eliminar análisis",
+    analysisFromDate: "Análisis del"
+  },
   // Splash Screen
   splashTagline: "Descubre la mejor versión de tu piel.",
   // Idle Screen
   welcomeTo: "Bienvenido a ProPiel",
   appSlogan: "Obtén análisis de piel personalizados y rutinas de cuidado. Comienza escaneando tu rostro.",
-  scanFaceButton: "Escanear Rostro", // Also used by Nav
+  scanFaceButton: "Escanear Rostro",
   featuredTreatmentsTitle: "Nuestros Tratamientos Destacados",
   // Facial Treatment Card
   viewMoreButton: "Ver más",
@@ -104,9 +125,6 @@ const esTranslations: Translations = {
   chatbotQuickReply2: "Tengo un brote, ¿qué hago?",
   chatbotQuickReply3: "Consejos de hidratación",
   chatbotQuickReply4: "Mejorar textura piel",
-  // Chatbot Toggle Button (No longer used, but keys kept for potential future use)
-  chatbotToggleOpenLabel: "Abrir asistente virtual",
-  chatbotToggleCloseLabel: "Cerrar asistente virtual",
   // Gemini Prompts
   geminiSystemInstruction: `Eres "ProPiel Asistente", un amigable y experto asistente virtual especializado en el cuidado de la piel. Tu objetivo es ayudar a los usuarios con sus dudas sobre productos de belleza, rutinas diarias, problemas como brotes de acné, y consejos para hábitos saludables. Comunícate exclusivamente en español. Sé conciso (1-3 frases). Usa emojis ✨😊💧🍎💡.
 Si el usuario envía una imagen junto con su pregunta (o solo una imagen), ANALIZA DETALLADAMENTE la imagen y úsala como CONTEXTO PRINCIPAL para tu respuesta. Describe lo que ves en la imagen si es relevante para la pregunta o para dar una recomendación.
@@ -167,6 +185,7 @@ Instrucciones adicionales:
   navAssistant: "Asistente",
   navOptions: "Opciones",
   navCalendar: "Calendario",
+  navHistory: "Historial",
   // Options Screen
   optionsTitle: "Configuración",
   themeToggle: "Modo Oscuro/Claro",
@@ -187,12 +206,41 @@ const enTranslations: Translations = {
   languageSelector: {
     toggleLabel: "Change language"
   },
+  // Authentication
+  auth: {
+    signIn: "Sign In",
+    signUp: "Sign Up",
+    signOut: "Sign Out",
+    email: "Email",
+    password: "Password",
+    emailPlaceholder: "your@email.com",
+    passwordPlaceholder: "Your password",
+    signInWithGoogle: "Continue with Google",
+    loading: "Loading...",
+    or: "or",
+    signInSubtitle: "Sign in to access your analysis history",
+    signUpSubtitle: "Create an account to save your analysis history",
+    alreadyHaveAccount: "Already have an account? Sign in",
+    dontHaveAccount: "Don't have an account? Sign up"
+  },
+  // History
+  history: {
+    title: "Analysis History",
+    noAnalyses: "No saved analyses",
+    noAnalysesDescription: "Perform your first skin analysis to see your history here",
+    analysis: "Analysis",
+    characteristics: "characteristics",
+    viewDetails: "View details",
+    backToHistory: "Back to history",
+    deleteAnalysis: "Delete analysis",
+    analysisFromDate: "Analysis from"
+  },
   // Splash Screen
   splashTagline: "Discover the best version of your skin.",
   // Idle Screen
   welcomeTo: "Welcome to ProPiel",
   appSlogan: "Get personalized skin analysis and care routines. Start by scanning your face.",
-  scanFaceButton: "Scan Face", // Also used by Nav
+  scanFaceButton: "Scan Face",
   featuredTreatmentsTitle: "Our Featured Treatments",
   // Facial Treatment Card
   viewMoreButton: "View More",
@@ -268,9 +316,6 @@ const enTranslations: Translations = {
   chatbotQuickReply2: "I have a breakout, what to do?",
   chatbotQuickReply3: "Hydration tips",
   chatbotQuickReply4: "Improve skin texture",
-  // Chatbot Toggle Button (No longer used)
-  chatbotToggleOpenLabel: "Open virtual assistant",
-  chatbotToggleCloseLabel: "Close virtual assistant",
   // Gemini Prompts
   geminiSystemInstruction: `You are "ProPiel Assistant", a friendly and expert virtual assistant specializing in skincare. Your goal is to help users with questions about beauty products, daily routines, issues like acne breakouts, and tips for healthy habits. Communicate exclusively in English. Be concise (1-3 sentences). Use emojis ✨😊💧🍎💡.
 If the user sends an image along with their question (or just an image), ANALYZE the image IN DETAIL and use it as the PRIMARY CONTEXT for your response. Describe what you see in the image if it's relevant to the question or for giving a recommendation.
@@ -331,6 +376,7 @@ Further instructions:
   navAssistant: "Assistant",
   navOptions: "Options",
   navCalendar: "Calendar",
+  navHistory: "History",
   // Options Screen
   optionsTitle: "Settings",
   themeToggle: "Dark/Light Mode",
@@ -340,7 +386,6 @@ Further instructions:
   calendarTitle: "Skincare Calendar",
   calendarPlaceholder: "Calendar feature coming soon. Here you'll be able to schedule reminders for your skincare routine and appointments.",
 };
-
 
 const messages: { [key in Language]: Translations } = {
   es: esTranslations,
@@ -358,7 +403,7 @@ export const LanguageContext = createContext<LanguageContextType | undefined>(un
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
     const storedLang = typeof window !== 'undefined' ? localStorage.getItem('appLanguage') as Language | null : null;
-    return storedLang || 'es'; // Default to Spanish
+    return storedLang || 'es';
   });
 
   useEffect(() => {
@@ -380,13 +425,12 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
       if (typeof currentLevel === 'object' && currentLevel !== null && k in currentLevel) {
         currentLevel = currentLevel[k];
       } else {
-        // Fallback chain: current lang -> english -> key itself
-        currentLevel = messages['en']; // Try English
+        currentLevel = messages['en'];
         for (const k_fb of keys) {
             if (typeof currentLevel === 'object' && currentLevel !== null && k_fb in currentLevel) {
                 currentLevel = currentLevel[k_fb];
             } else {
-                return key; // Key not found in current or English
+                return key;
             }
         }
         break; 
@@ -395,7 +439,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
 
     let translation = typeof currentLevel === 'string' ? currentLevel : key;
 
-    if (params && typeof currentLevel === 'string') { // Ensure translation is a string before replacing params
+    if (params && typeof currentLevel === 'string') {
       Object.keys(params).forEach(paramKey => {
         translation = translation.replace(new RegExp(`{{${paramKey}}}`, 'g'), String(params[paramKey]));
       });

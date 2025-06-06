@@ -1,8 +1,5 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Theme, AppState, SkinAnalysisData, FacialTreatmentService, AppView } from './types';
-// Header component is no longer imported or used
-// import Header from './components/Header'; 
 import CameraCapture from './components/CameraCapture';
 import AnalysisDisplay from './components/AnalysisDisplay';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -10,11 +7,15 @@ import ErrorMessage from './components/ErrorMessage';
 import { analyzeSkin } from './services/geminiService';
 import Chatbot from './components/chatbot/Chatbot';
 import { useTranslation } from './contexts/LanguageContext';
+import { useAuth } from './contexts/AuthContext';
 import BottomNavBar from './components/BottomNavBar';
 import IdleHomeScreen from './components/IdleHomeScreen';
 import OptionsScreen from './components/OptionsScreen';
 import CalendarScreen from './components/CalendarScreen';
-import SplashScreen from './components/SplashScreen'; // Import SplashScreen
+import HistoryScreen from './components/HistoryScreen';
+import SplashScreen from './components/SplashScreen';
+import LoginScreen from './components/auth/LoginScreen';
+import { saveAnalysisToHistory, uploadAnalysisPhoto } from './services/analysisService';
 
 const facialTreatmentsData: FacialTreatmentService[] = [
   {
@@ -40,8 +41,8 @@ const facialTreatmentsData: FacialTreatmentService[] = [
   },
 ];
 
-
 const App: React.FC = () => {
+  const { user, loading: authLoading } = useAuth();
   const [theme, setTheme] = useState<Theme>(Theme.Light);
   const [appState, setAppState] = useState<AppState>(AppState.Idle);
   const [activeView, setActiveView] = useState<AppView>('home');
@@ -50,15 +51,15 @@ const App: React.FC = () => {
   const [errorParams, setErrorParams] = useState<Record<string, string | number> | undefined>(undefined);
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   const { t, language } = useTranslation(); 
-  const [showSplashScreen, setShowSplashScreen] = useState(true); // State for SplashScreen
+  const [showSplashScreen, setShowSplashScreen] = useState(true);
+  const [capturedImageDataUrl, setCapturedImageDataUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplashScreen(false);
-    }, 3000); // Splash screen duration: 3 seconds
+    }, 3000);
     return () => clearTimeout(timer);
   }, []);
-
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as Theme | null;
@@ -81,12 +82,35 @@ const App: React.FC = () => {
   const handleCapture = useCallback(async (imageDataUrl: string) => {
     setAppState(AppState.Loading);
     setActiveView('home'); 
+    setCapturedImageDataUrl(imageDataUrl);
+    
     try {
       const result = await analyzeSkin(imageDataUrl, language, t);
       setAnalysisResult(result);
       setAppState(AppState.Results);
       setErrorMessageKey(null);
       setErrorParams(undefined);
+
+      // Save analysis to history if user is logged in
+      if (user) {
+        try {
+          // Upload photo first
+          const { photoUrl, error: uploadError } = await uploadAnalysisPhoto(user.id, imageDataUrl);
+          
+          if (uploadError) {
+            console.warn('Failed to upload photo:', uploadError);
+          }
+
+          // Save analysis to history
+          const { error: saveError } = await saveAnalysisToHistory(user.id, result, photoUrl || undefined);
+          
+          if (saveError) {
+            console.error('Failed to save analysis to history:', saveError);
+          }
+        } catch (historyError) {
+          console.error('Error saving to history:', historyError);
+        }
+      }
     } catch (error) {
       console.error("Analysis failed:", error);
       if (error instanceof Error) {
@@ -104,7 +128,7 @@ const App: React.FC = () => {
       }
       setAppState(AppState.Error);
     }
-  }, [language, t]);
+  }, [language, t, user]);
 
   const resetAppToBaseView = (targetView: AppView = 'home') => {
     setAppState(AppState.Idle);
@@ -112,6 +136,7 @@ const App: React.FC = () => {
     setAnalysisResult(null);
     setErrorMessageKey(null);
     setErrorParams(undefined);
+    setCapturedImageDataUrl(null);
   };
 
   const handleNavChange = (view: AppView) => {
@@ -152,6 +177,8 @@ const App: React.FC = () => {
         return <OptionsScreen theme={theme} setTheme={setTheme} />;
       case 'calendar':
         return <CalendarScreen />;
+      case 'history':
+        return <HistoryScreen />;
       default:
         return <IdleHomeScreen onStartScan={handleScanPress} facialTreatmentsData={facialTreatmentsData} />;
     }
@@ -159,14 +186,20 @@ const App: React.FC = () => {
   
   const showBottomNavBar = appState !== AppState.Camera && appState !== AppState.Loading;
   
-  // const showMainHeader logic removed as header is always hidden.
   if (showSplashScreen) {
     return <SplashScreen />;
   }
 
+  if (authLoading) {
+    return <LoadingSpinner />;
+  }
+
+  if (!user) {
+    return <LoginScreen />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
-      {/* Header component removed */}
       <main className={`flex-grow ${showBottomNavBar ? 'pb-20 sm:pb-24' : ''}`}>
         {renderMainContent()}
       </main>
