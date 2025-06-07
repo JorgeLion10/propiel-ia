@@ -1,10 +1,10 @@
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import { SkinAnalysisData, Language } from '../types';
 
-const apiKey = process.env.GEMINI_API_KEY;
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
 if (!apiKey) {
-  console.error("GEMINI_API_KEY is not set in environment variables.");
+  console.error("VITE_GEMINI_API_KEY is not set in environment variables.");
 }
 
 const ai = new GoogleGenAI({ apiKey: apiKey || "MISSING_API_KEY" });
