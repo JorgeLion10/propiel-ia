@@ -32,6 +32,8 @@ const esTranslations: Translations = {
     alreadyHaveAccount: "¿Ya tienes cuenta? Inicia sesión",
     dontHaveAccount: "¿No tienes cuenta? Regístrate"
   },
+  // User Account
+  userAccount: "Cuenta de Usuario",
   // History
   history: {
     title: "Historial de Análisis",
@@ -223,6 +225,8 @@ const enTranslations: Translations = {
     alreadyHaveAccount: "Already have an account? Sign in",
     dontHaveAccount: "Don't have an account? Sign up"
   },
+  // User Account
+  userAccount: "User Account",
   // History
   history: {
     title: "Analysis History",
