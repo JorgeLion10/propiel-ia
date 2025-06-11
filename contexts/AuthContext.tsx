@@ -115,27 +115,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signInWithGoogle = async () => {
     try {
-      console.log('Attempting Google sign in...');
-      console.log('Current origin:', window.location.origin);
+      console.log('Iniciando autenticación con Google...');
       
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}`,
+          redirectTo: window.location.origin,
           queryParams: {
             access_type: 'offline',
             prompt: 'select_account',
           },
         }
       });
-      
+
+      console.log('Respuesta de Google OAuth:', { data, error });
+
       if (error) {
-        console.error('Google OAuth error:', error);
+        console.error('Error en Google OAuth:', error);
+        return { error };
       }
-      
-      return { error };
+
+      // Si llegamos aquí sin error, la redirección debería ocurrir automáticamente
+      return { error: null };
     } catch (err) {
-      console.error('Google SignIn error:', err);
+      console.error('Error inesperado en Google SignIn:', err);
       return { error: err as AuthError };
     }
   };
