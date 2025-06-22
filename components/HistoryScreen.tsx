@@ -34,20 +34,28 @@ const HistoryScreen: React.FC = () => {
   const fetchHistory = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      setError(null);
+      
+      console.log('Fetching history for user:', user?.id);
+      
+      const { data, error, count } = await supabase
         .from('analysis_history')
-        .select('*')
+        .select('*', { count: 'exact' })
         .eq('user_id', user!.id)
         .order('created_at', { ascending: false });
 
+      console.log('History query result:', { data, error, count });
+
       if (error) {
+        console.error('Supabase error:', error);
         throw error;
       }
 
       setHistory(data || []);
-    } catch (err) {
+      console.log(`Found ${data?.length || 0} analysis records`);
+    } catch (err: any) {
       console.error('Error fetching history:', err);
-      setError('Failed to load analysis history');
+      setError(`Failed to load analysis history: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -76,16 +84,19 @@ const HistoryScreen: React.FC = () => {
 
       setHistory(history.filter(item => item.id !== id));
       setSelectedAnalysis(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error deleting analysis:', err);
-      setError('Failed to delete analysis');
+      setError(`Failed to delete analysis: ${err.message}`);
     }
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-5rem)] bg-gray-100 dark:bg-gray-900">
-        <div className="w-16 h-16 border-4 border-primary border-t-transparent border-solid rounded-full animate-spin"></div>
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent border-solid rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading your analysis history...</p>
+        </div>
       </div>
     );
   }
@@ -183,18 +194,42 @@ const HistoryScreen: React.FC = () => {
   return (
     <div className="p-4 bg-gray-100 dark:bg-gray-900 min-h-[calc(100vh-5rem)]">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center space-x-3 mb-6">
-          <CalendarIcon className="w-8 h-8 text-primary dark:text-[#14e3eb]" />
-          <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">
-            {t('history.title')}
-          </h2>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-3">
+            <CalendarIcon className="w-8 h-8 text-primary dark:text-[#14e3eb]" />
+            <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+              {t('history.title')}
+            </h2>
+          </div>
+          <button
+            onClick={fetchHistory}
+            className="px-4 py-2 bg-primary text-primary-content rounded-lg hover:bg-opacity-90 transition-colors text-sm"
+          >
+            Refresh
+          </button>
         </div>
 
         {error && (
           <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded-lg mb-6">
-            {error}
+            <div className="flex justify-between items-center">
+              <span>{error}</span>
+              <button
+                onClick={() => setError(null)}
+                className="text-red-500 hover:text-red-700"
+              >
+                ×
+              </button>
+            </div>
           </div>
         )}
+
+        {/* Debug info - remove in production */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-200 px-4 py-3 rounded-lg mb-6 text-sm">
+          <p><strong>Debug Info:</strong></p>
+          <p>User ID: {user?.id}</p>
+          <p>Records found: {history.length}</p>
+          <p>Last fetch: {new Date().toLocaleTimeString()}</p>
+        </div>
 
         {history.length === 0 ? (
           <div className="text-center py-12">
@@ -202,9 +237,15 @@ const HistoryScreen: React.FC = () => {
             <h3 className="text-xl font-medium text-gray-600 dark:text-gray-400 mb-2">
               {t('history.noAnalyses')}
             </h3>
-            <p className="text-gray-500 dark:text-gray-500">
+            <p className="text-gray-500 dark:text-gray-500 mb-4">
               {t('history.noAnalysesDescription')}
             </p>
+            <button
+              onClick={fetchHistory}
+              className="px-6 py-2 bg-primary text-primary-content rounded-lg hover:bg-opacity-90 transition-colors"
+            >
+              Check Again
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -219,6 +260,9 @@ const HistoryScreen: React.FC = () => {
                     src={item.photo_url}
                     alt="Analysis photo"
                     className="w-full h-48 object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
                   />
                 )}
                 <div className="p-4">
@@ -231,11 +275,11 @@ const HistoryScreen: React.FC = () => {
                     </span>
                   </div>
                   {item.general_impression && (
-                    <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 mb-3">
                       {item.general_impression}
                     </p>
                   )}
-                  <div className="mt-3 flex items-center justify-between">
+                  <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-500 dark:text-gray-400">
                       {item.characteristics?.length || 0} {t('history.characteristics')}
                     </span>

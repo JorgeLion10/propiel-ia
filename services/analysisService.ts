@@ -7,7 +7,11 @@ export const saveAnalysisToHistory = async (
   photoUrl?: string
 ): Promise<{ error: Error | null }> => {
   try {
-    const { error } = await supabase
+    console.log('Saving analysis to history for user:', userId);
+    console.log('Analysis data:', analysisData);
+    console.log('Photo URL:', photoUrl);
+
+    const { data, error } = await supabase
       .from('analysis_history')
       .insert({
         user_id: userId,
@@ -17,12 +21,15 @@ export const saveAnalysisToHistory = async (
         products: analysisData.products,
         wellness_tips: analysisData.wellnessTips,
         photo_url: photoUrl,
-      });
+      })
+      .select();
 
     if (error) {
+      console.error('Supabase error saving analysis:', error);
       throw error;
     }
 
+    console.log('Analysis saved successfully:', data);
     return { error: null };
   } catch (err) {
     console.error('Error saving analysis to history:', err);
@@ -35,12 +42,16 @@ export const uploadAnalysisPhoto = async (
   imageDataUrl: string
 ): Promise<{ photoUrl: string | null; error: Error | null }> => {
   try {
+    console.log('Uploading photo for user:', userId);
+    
     // Convert data URL to blob
     const response = await fetch(imageDataUrl);
     const blob = await response.blob();
     
     // Create unique filename
     const fileName = `${userId}/${Date.now()}.jpg`;
+    
+    console.log('Uploading file:', fileName);
     
     // Upload to Supabase storage
     const { data, error } = await supabase.storage
@@ -51,13 +62,18 @@ export const uploadAnalysisPhoto = async (
       });
 
     if (error) {
+      console.error('Storage upload error:', error);
       throw error;
     }
+
+    console.log('Photo uploaded successfully:', data);
 
     // Get public URL
     const { data: { publicUrl } } = supabase.storage
       .from('analysis-photos')
       .getPublicUrl(data.path);
+
+    console.log('Public URL:', publicUrl);
 
     return { photoUrl: publicUrl, error: null };
   } catch (err) {
